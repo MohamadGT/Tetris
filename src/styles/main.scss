@@ -1,0 +1,35 @@
+.tetris {
+    position: relative;
+    display: flex;
+    width: 500px;
+    height: 1000px;
+}
+
+
+.block {
+    width: 50px;
+    height: 50px;
+    position: relative;
+    box-sizing: border-box;
+}
+
+
+.block::after {
+    content: '';
+    position: absolute;
+    top: -13px;
+    left: -13px;
+    width: 56px;
+    height: 56px;
+    border: black solid 6px;
+    box-sizing: border-box;
+    background-color: transparent;
+}
+
+.block_color_cyan {
+    background-color: #66ccff;
+    border-bottom: 10px solid #3399cc;
+    border-left: 10px solid #3399cc;
+    border-right: 10px solid #99ffff;
+    border-top: 10px solid #99ffff;
+}
