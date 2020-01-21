@@ -7,13 +7,13 @@ export default class Block {
   }
 
   draw(container) {
-    let div = document.createElement('div');
-    div.classList.add('block');
-    div.classList.add(`block_color_${this.color}`);
-    div.style.top = `${this.y * this.unitSize}px`;
-    div.style.left = `${this.x * this.unitSize}px`;
-    div.style.width = `${this.unitSize}px`;
-    div.style.height = `${this.unitSize}px`;
-    container.append(div);
+    this.div = document.createElement('div');
+    this.div.classList.add('block');
+    this.div.classList.add(`block_color_${this.color}`);
+    this.div.style.top = `${this.y * this.unitSize}px`;
+    this.div.style.left = `${this.x * this.unitSize}px`;
+    this.div.style.width = `${this.unitSize}px`;
+    this.div.style.height = `${this.unitSize}px`;
+    container.append(this.div);
   }
 }
