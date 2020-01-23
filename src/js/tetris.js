@@ -39,7 +39,8 @@ export default class Tetris {
       highScore: document.querySelector('.high-score__value'),
       nextShape: document.querySelector('.next-shape__object'),
       pause: document.querySelector('.pause'),
-      tetris: document.querySelector('.tetris')
+      tetris: document.querySelector('.tetris'),
+      gameOver: document.querySelector('.game-over')
     };
   }
 
@@ -64,7 +65,7 @@ export default class Tetris {
   }
 
   onGameOver() {
-    console.log('Game Over');
+    this.elements.gameOver.style.display = 'block';
     this.highScore = Math.max(this.highScore, this.score);
     this.elements.highScore.innerHTML = this.highScore;
     this.isRunning = false;
@@ -130,7 +131,7 @@ export default class Tetris {
     };
     document.addEventListener('keydown', this.onKeyDown);
 
-    this.onClick = () => {
+    this.onPauseClick = () => {
       this.pauseGame();
     };
     this.elements.pause.addEventListener('click', this.onPauseClick);
@@ -218,13 +219,16 @@ export default class Tetris {
     this.speed = 1000;
     this.score = 0;
     this.elements.score.innerHTML = this.score;
+    this.elements.gameOver.style.display = 'none';
   }
 
   pauseGame() {
     if (this.pause) {
+      this.elements.pause.innerHTML = 'Pause';
       this.pause = false;
       this.loop();
     } else {
+      this.elements.pause.innerHTML = 'Continue';
       this.pause = true;
     }
   }

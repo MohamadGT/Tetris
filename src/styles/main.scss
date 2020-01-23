@@ -8,11 +8,8 @@ body {
     align-items: center;
     min-height: 100vh;
 }
-.fake-container {
-    display: none;
-}
 .container {
-    width: 600px;
+    width: 800px;
     display: grid;
     grid-template-columns: 1fr 2fr 1fr;
     grid-gap: 3px;
@@ -22,6 +19,7 @@ body {
 .menu {
     border: solid 2px rgba($color: #000000, $alpha: 1.0);
     padding: 10px;
+    justify-content: center;
 }
 .next-shape {
     position: relative;
@@ -30,26 +28,56 @@ body {
     text-align: center;
 }
 .score__label {
-    font-size: 30px;
+    margin-top: 10px;;
+    font-size: 20px;
 }
 .score__value {
-    font-size: 30px;
+    font-size: 20px;
 }
 .high-score__label {
-    font-size: 30px;
+    margin-top: 10px;
+    font-size: 20px;
 }
 .high-score__value {
-    font-size: 30px;
+    font-size: 20px;
+    margin-bottom: 10px;
 }
 .pause {
-    width: 30px;
-    height: 30px;
-    background-color: rgba($color: #000000, $alpha: 1.0);
+    height: 40px;
+    padding: 3px;
+    border: solid 2px rgb(16, 160, 81);
+    margin: 3px;
+    text-align: center;
+    line-height: 40px;
+    color: rgb(16, 160, 81);
+    cursor: pointer;
+}
+.pause:hover {
+    background-color: rgb(16, 160, 81);
+    color: #fff;
 }
 .new-game {
-    width: 30px;
+    height: 40px;
+    line-height: 40px;;
+    padding: 3px;
+    margin: 3px;
+    text-align: center;
+    border: solid 2px rgb(45, 66, 136);
+    color: rgb(45, 66, 136);
+    cursor: pointer;
+}
+.new-game:hover {
+    background-color: rgb(45, 66, 136);
+    color: #fff;
+}
+.game-over {
+    color: #FF0000;
+    display: none;
+    margin: 3px;
     height: 30px;
-    background-color: rgba($color: #881414, $alpha: 1.0);
+    font-size: 20px;
+    text-align: center;
+    line-height: 30px;
 }
 .tetris {
     position: relative;
@@ -62,6 +90,10 @@ body {
 }
 .next-shape__label {
     font-size: 20px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    margin-bottom: 20px;
 }
 .next-shape__object {
     position: relative;
