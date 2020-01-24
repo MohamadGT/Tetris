@@ -29,7 +29,6 @@ export default class Tetris {
     this.pause = false;
     this.speed = 1000;
     this.score = 0;
-    this.isRunning = false;
     this.highScore = 0;
   }
 
@@ -45,18 +44,44 @@ export default class Tetris {
   }
 
   start() {
-    this.isRunning = true;
-    if (!this.gameOver) {
-      this.setupListeners();
-    }
+    this.setupListeners();
     this.gameOver = false;
     this.shape = this.getRandomShape();
+    // this.shape.draw(this.container);
+    // this.drawNextShape();
+    // this.loop();
+    this.drawShape();
+  }
+
+  drawShape() {
+    this.shape.y = -2;
     this.shape.draw(this.container);
     this.drawNextShape();
-    this.loop();
+    this.moveCurrentShape();
+  }
+
+  async moveCurrentShape() {
+    if (!this.shape.tryMoveDown(this.blocks)) {
+      if (this.checkIsGameOver()) {
+        this.onGameOver();
+      } else {
+        this.saveBlocks();
+        this.checkFilledRow();
+        this.accelaration();
+        this.shape = this.nextShape;
+        this.drawShape();
+      }
+    } else {
+      await sleep(this.speed);
+      if (!this.pause) {
+        this.moveCurrentShape();
+      }
+    }
+
   }
 
   drawNextShape() {
+    this.clearNextShape();
     this.nextShape = this.getRandomShape();
     let clone = this.nextShape.clone();
     clone.x = 0;
@@ -68,32 +93,43 @@ export default class Tetris {
     this.elements.gameOver.style.display = 'block';
     this.highScore = Math.max(this.highScore, this.score);
     this.elements.highScore.innerHTML = this.highScore;
-    this.isRunning = false;
     this.gameOver = true;
+    this.removeListeners();
   }
 
-  async loop() {
-    await sleep(this.speed);
-    if (this.shape.canMoveDown(this.blocks)) {
-      this.shape.move(0, 1);
-    } else {
-      this.blocks = [...this.blocks, ...this.shape.blocks];
-      this.checkFilledRow();
-      this.round++;
-      if (this.round % 10 === 0) {
-        this.speed *= 0.9;
-      }
-      this.shape = this.nextShape;
-      this.shape.draw(this.container);
-      this.clearNextShape();
-      this.drawNextShape();
-      if (this.checkIsGameOver()) {
-        this.onGameOver();
-        return;
-      }
-    }
-    if (!this.pause) {
-      this.loop();
+  // async loop() {
+  //   await sleep(this.speed);
+  //   if (this.shape.canMoveDown(this.blocks)) {
+  //     this.shape.move(0, 1);
+  //   } else {
+  //     this.blocks = [...this.blocks, ...this.shape.blocks];
+  //     this.checkFilledRow();
+  //     this.round++;
+  //     if (this.round % 10 === 0) {
+  //       this.speed *= 0.9;
+  //     }
+  //     this.shape = this.nextShape;
+  //     this.shape.draw(this.container);
+  //     this.clearNextShape();
+  //     this.drawNextShape();
+  //     if (this.checkIsGameOver()) {
+  //       this.onGameOver();
+  //       return;
+  //     }
+  //   }
+  //   if (!this.pause) {
+  //     this.loop();
+  //   }
+  // }
+
+  saveBlocks() {
+    this.blocks = [...this.blocks, ...this.shape.blocks];
+  }
+
+  accelaration() {
+    this.round++;
+    if (this.round % 10 === 0) {
+      this.speed *= 0.9;
     }
   }
 
@@ -111,16 +147,24 @@ export default class Tetris {
     this.onKeyDown = event => {
       switch (event.keyCode) {
         case KEYS.left:
-          this.moveLeft();
+          if (!this.pause) {
+            this.shape.tryMoveLeft(this.blocks);
+          }
           break;
         case KEYS.right:
-          this.moveRight();
+          if (!this.pause) {
+            this.shape.tryMoveRight(this.blocks);
+          }
           break;
         case KEYS.down:
-          this.moveDown();
+          if (!this.pause) {
+            this.shape.tryMoveDown(this.blocks);
+          }
           break;
         case KEYS.r:
-          this.rotate();
+          if (!this.pause) {
+            this.shape.tryRotate(this.blocks);
+          }
           break;
         case KEYS.space:
           this.pauseGame();
@@ -142,29 +186,29 @@ export default class Tetris {
     this.elements.pause.removeEventListener('click', this.onPauseClick);
   }
 
-  moveDown() {
-    if (!this.pause && this.shape.canMoveDown(this.blocks)) {
-      this.shape.move(0, 1);
-    }
-  }
+  // moveDown() {
+  //   if (!this.pause && this.shape.canMoveDown(this.blocks)) {
+  //     this.shape.move(0, 1);
+  //   }
+  // }
 
-  moveLeft() {
-    if (!this.pause && this.shape.canMoveLeft(this.blocks)) {
-      this.shape.move(-1, 0);
-    }
-  }
+  // moveLeft() {
+  //   if (!this.pause && this.shape.canMoveLeft(this.blocks)) {
+  //     this.shape.move(-1, 0);
+  //   }
+  // }
 
-  moveRight() {
-    if (!this.pause && this.shape.canMoveRight(this.blocks)) {
-      this.shape.move(1, 0);
-    }
-  }
+  // moveRight() {
+  //   if (!this.pause && this.shape.canMoveRight(this.blocks)) {
+  //     this.shape.move(1, 0);
+  //   }
+  // }
 
-  rotate() {
-    if (!this.pause && this.shape.canRotate(this.blocks)) {
-      this.shape.rotate();
-    }
-  }
+  // rotate() {
+  //   if (!this.pause && this.shape.canRotate(this.blocks)) {
+  //     this.shape.rotate();
+  //   }
+  // }
 
   checkFilledRow() {
     let rows = [];
@@ -226,7 +270,7 @@ export default class Tetris {
     if (this.pause) {
       this.elements.pause.innerHTML = 'Pause';
       this.pause = false;
-      this.loop();
+      this.moveCurrentShape();
     } else {
       this.elements.pause.innerHTML = 'Continue';
       this.pause = true;

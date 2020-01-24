@@ -29,22 +29,34 @@ export default class Shape {
     return Object.assign(Object.create(Object.getPrototypeOf(this)), this);
   }
 
-  canMoveLeft(oldBlocks) {
-    return this.blocks.every(block => block.x !== 0)
-      && oldBlocks.every(block => !this.blocks.some(b => (b.x - 1) === block.x && b.y === block.y));
+  tryMoveLeft(oldBlocks) {
+    if (this.blocks.every(block => block.x !== 0)
+        && oldBlocks.every(block => !this.blocks.some(b => (b.x - 1) === block.x && b.y === block.y))) {
+      this.move(-1, 0);
+      return true;
+    }
+    return false;
   }
 
-  canMoveRight(oldBlocks) {
-    return this.blocks.every(block => block.x !== (CONSTANTS.tetrisWidth - 1))
-      && oldBlocks.every(block => !this.blocks.some(b => (b.x + 1) === block.x && b.y === block.y));
+  tryMoveRight(oldBlocks) {
+    if (this.blocks.every(block => block.x !== (CONSTANTS.tetrisWidth - 1))
+        && oldBlocks.every(block => !this.blocks.some(b => (b.x + 1) === block.x && b.y === block.y))) {
+      this.move(1, 0);
+      return true;
+    }
+    return false;
   }
 
-  canMoveDown(oldBlocks) {
-    return this.blocks.every(block => block.y !== ((CONSTANTS.tetrisWidth * 2) - 1))
-      && oldBlocks.every(block => !this.blocks.some(b => b.x === block.x && (b.y + 1) === block.y));
+  tryMoveDown(oldBlocks) {
+    if (this.blocks.every(block => block.y !== ((CONSTANTS.tetrisWidth * 2) - 1))
+        && oldBlocks.every(block => !this.blocks.some(b => b.x === block.x && (b.y + 1) === block.y))) {
+      this.move(0, 1);
+      return true;
+    }
+    return false;
   }
 
-  canRotate(oldBlocks) {
+  tryRotate(oldBlocks) {
     let newRotation = (this.rotation + 90) % 360;
     let options = this.constructor.blockOptions[newRotation];
     let blocks = options.map(point => new Block({
@@ -53,8 +65,12 @@ export default class Shape {
       unitSize: this.unitSize,
       color: this.constructor.color
     }));
-    return blocks.every(block => block.x >= 0 && block.x <= (CONSTANTS.tetrisWidth - 1) && block.y <= ((CONSTANTS.tetrisWidth * 2) - 1))
-      && oldBlocks.every(block => !blocks.some(b => b.x === block.x && b.y === block.y));
+    if (blocks.every(block => block.x >= 0 && block.x <= (CONSTANTS.tetrisWidth - 1) && block.y <= ((CONSTANTS.tetrisWidth * 2) - 1))
+        && oldBlocks.every(block => !blocks.some(b => b.x === block.x && b.y === block.y))) {
+      this.rotate();
+      return true;
+    }
+    return false;
   }
 
   move(x, y) {
