@@ -5,8 +5,8 @@ import O from './o';
 import S from './s';
 import T from './t';
 import Z from './z';
-import Block from './block';
 import { CONSTANTS } from './values';
+import GridManager from './grid-manager';
 
 const SHAPES = [I, J, L, O, S, T, Z];
 const KEYS = {
@@ -44,12 +44,10 @@ export default class Tetris {
   }
 
   start() {
+    this.isRunning = true;
     this.setupListeners();
     this.gameOver = false;
     this.shape = this.getRandomShape();
-    // this.shape.draw(this.container);
-    // this.drawNextShape();
-    // this.loop();
     this.drawShape();
   }
 
@@ -61,12 +59,14 @@ export default class Tetris {
   }
 
   async moveCurrentShape() {
+    this.canDoThat = false;
     if (!this.shape.tryMoveDown(this.blocks)) {
       if (this.checkIsGameOver()) {
         this.onGameOver();
       } else {
         this.saveBlocks();
-        this.checkFilledRow();
+        //this.checkFilledRow();
+        this.manageGrid();
         this.accelaration();
         this.shape = this.nextShape;
         this.drawShape();
@@ -95,32 +95,8 @@ export default class Tetris {
     this.elements.highScore.innerHTML = this.highScore;
     this.gameOver = true;
     this.removeListeners();
+    this.isRunning = false;
   }
-
-  // async loop() {
-  //   await sleep(this.speed);
-  //   if (this.shape.canMoveDown(this.blocks)) {
-  //     this.shape.move(0, 1);
-  //   } else {
-  //     this.blocks = [...this.blocks, ...this.shape.blocks];
-  //     this.checkFilledRow();
-  //     this.round++;
-  //     if (this.round % 10 === 0) {
-  //       this.speed *= 0.9;
-  //     }
-  //     this.shape = this.nextShape;
-  //     this.shape.draw(this.container);
-  //     this.clearNextShape();
-  //     this.drawNextShape();
-  //     if (this.checkIsGameOver()) {
-  //       this.onGameOver();
-  //       return;
-  //     }
-  //   }
-  //   if (!this.pause) {
-  //     this.loop();
-  //   }
-  // }
 
   saveBlocks() {
     this.blocks = [...this.blocks, ...this.shape.blocks];
@@ -186,61 +162,17 @@ export default class Tetris {
     this.elements.pause.removeEventListener('click', this.onPauseClick);
   }
 
-  // moveDown() {
-  //   if (!this.pause && this.shape.canMoveDown(this.blocks)) {
-  //     this.shape.move(0, 1);
-  //   }
-  // }
-
-  // moveLeft() {
-  //   if (!this.pause && this.shape.canMoveLeft(this.blocks)) {
-  //     this.shape.move(-1, 0);
-  //   }
-  // }
-
-  // moveRight() {
-  //   if (!this.pause && this.shape.canMoveRight(this.blocks)) {
-  //     this.shape.move(1, 0);
-  //   }
-  // }
-
-  // rotate() {
-  //   if (!this.pause && this.shape.canRotate(this.blocks)) {
-  //     this.shape.rotate();
-  //   }
-  // }
-
-  checkFilledRow() {
-    let rows = [];
-    let toRemove = [];
-    this.blocks.forEach(block => {
-      rows[block.y] = rows[block.y] ? [...rows[block.y], block] : [block];
-    });
-    rows.forEach((blocks, index) => {
-      if (blocks.length === CONSTANTS.tetrisWidth) {
-        toRemove.push(index);
-        this.removeBlocks(blocks);
-      }
-    });
-    if (toRemove.length > 0) {
-      this.score += toRemove.length;
-      this.elements.score.innerHTML = this.score;
-      this.blocks.forEach(block => this.container.removeChild(block.div));
-      this.blocks = this.blocks.map(block => new Block({
-        x: block.x,
-        y: block.y + toRemove.filter(y => y > block.y).length,
-        unitSize: block.unitSize,
-        color: block.color
-      }));
-      this.blocks.forEach(block => block.draw(this.container));
-    }
-  }
-
-  removeBlocks(blocks) {
-    blocks.forEach(block => {
+  manageGrid() {
+    let result = GridManager.checkFilledRow(this.blocks);
+    result.remove.forEach(block => {
       this.blocks.splice(this.blocks.indexOf(block), 1);
       this.container.removeChild(block.div);
     });
+    if (result.indexes.length > 0) {
+      this.score += result.indexes.length;
+      this.elements.score.innerHTML = this.score;
+      this.blocks = GridManager.reorderBlocks(this.blocks, result.indexes, this.container);
+    }
   }
 
   checkIsGameOver() {
