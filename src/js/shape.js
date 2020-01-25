@@ -2,12 +2,13 @@ import Block from './block';
 import { CONSTANTS } from './values';
 
 export default class Shape {
-  constructor({ x, y, container, rotation, unitSize }) {
+  constructor({ x, y, container, rotation, unitSize, gridManager }) {
     this.x = x;
     this.y = y;
     this.container = container;
     this.rotation = rotation;
     this.unitSize = unitSize;
+    this.gridManager = gridManager;
     this.blocks = [];
   }
 

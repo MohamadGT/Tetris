@@ -6,7 +6,6 @@ import S from './s';
 import T from './t';
 import Z from './z';
 import { CONSTANTS } from './values';
-import GridManager from './grid-manager';
 
 const SHAPES = [I, J, L, O, S, T, Z];
 const KEYS = {
@@ -21,10 +20,8 @@ function sleep(time) {
 }
 
 export default class Tetris {
-  constructor({ container, unitSize }) {
-    this.container = container;
-    this.unitSize = unitSize;
-    this.blocks = [];
+  constructor({ gridManager }) {
+    this.gridManager = gridManager;
     this.round = 1;
     this.pause = false;
     this.speed = 1000;
@@ -53,20 +50,21 @@ export default class Tetris {
 
   drawShape() {
     this.shape.y = -2;
-    this.shape.draw(this.container);
+    this.shape.draw(this.elements.tetris);
     this.drawNextShape();
     this.moveCurrentShape();
   }
 
   async moveCurrentShape() {
     this.canDoThat = false;
-    if (!this.shape.tryMoveDown(this.blocks)) {
+    if (!this.shape.tryMoveDown(this.gridManager.blocks)) {
       if (this.checkIsGameOver()) {
         this.onGameOver();
       } else {
         this.saveBlocks();
-        //this.checkFilledRow();
-        this.manageGrid();
+        this.gridManager.manageGrid();
+        this.score += this.gridManager.manageGrid();
+        this.elements.score.innerHTML = this.score;
         this.accelaration();
         this.shape = this.nextShape;
         this.drawShape();
@@ -99,7 +97,7 @@ export default class Tetris {
   }
 
   saveBlocks() {
-    this.blocks = [...this.blocks, ...this.shape.blocks];
+    this.gridManager.blocks = [...this.gridManager.blocks, ...this.shape.blocks];
   }
 
   accelaration() {
@@ -113,9 +111,9 @@ export default class Tetris {
     return new SHAPES[Math.floor(Math.random() * Math.floor(SHAPES.length))]({
       x: Math.floor(CONSTANTS.tetrisWidth * 0.4),
       y: -2,
-      container: this.container,
+      container: this.elements.tetris,
       rotation: 0,
-      unitSize: this.unitSize
+      unitSize: this.gridManager.unitSize
     });
   }
 
@@ -124,22 +122,22 @@ export default class Tetris {
       switch (event.keyCode) {
         case KEYS.left:
           if (!this.pause) {
-            this.shape.tryMoveLeft(this.blocks);
+            this.shape.tryMoveLeft(this.gridManager.blocks);
           }
           break;
         case KEYS.right:
           if (!this.pause) {
-            this.shape.tryMoveRight(this.blocks);
+            this.shape.tryMoveRight(this.gridManager.blocks);
           }
           break;
         case KEYS.down:
           if (!this.pause) {
-            this.shape.tryMoveDown(this.blocks);
+            this.shape.tryMoveDown(this.gridManager.blocks);
           }
           break;
         case KEYS.r:
           if (!this.pause) {
-            this.shape.tryRotate(this.blocks);
+            this.shape.tryRotate(this.gridManager.blocks);
           }
           break;
         case KEYS.space:
@@ -162,21 +160,8 @@ export default class Tetris {
     this.elements.pause.removeEventListener('click', this.onPauseClick);
   }
 
-  manageGrid() {
-    let result = GridManager.checkFilledRow(this.blocks);
-    result.remove.forEach(block => {
-      this.blocks.splice(this.blocks.indexOf(block), 1);
-      this.container.removeChild(block.div);
-    });
-    if (result.indexes.length > 0) {
-      this.score += result.indexes.length;
-      this.elements.score.innerHTML = this.score;
-      this.blocks = GridManager.reorderBlocks(this.blocks, result.indexes, this.container);
-    }
-  }
-
   checkIsGameOver() {
-    return this.blocks.some(block => block.y <= 0);
+    return this.gridManager.blocks.some(block => block.y <= 0);
   }
 
   clearNextShape() {
@@ -189,7 +174,7 @@ export default class Tetris {
     while (main.firstChild) {
       main.removeChild(main.firstChild);
     }
-    this.blocks = [];
+    this.gridManager.blocks = [];
     this.round = 1;
     this.pause = false;
     this.speed = 1000;
