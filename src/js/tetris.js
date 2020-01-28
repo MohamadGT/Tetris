@@ -9,15 +9,13 @@ import { CONSTANTS } from './values';
 
 const SHAPES = [I, J, L, O, S, T, Z];
 const KEYS = {
+  space: 32,
   left: 37,
+  up: 38,
   right: 39,
   down: 40,
-  r: 82,
-  space: 32
+  r: 82
 };
-function sleep(time) {
-  return new Promise(resolve => setTimeout(resolve, time));
-}
 
 export default class Tetris {
   constructor({ gridManager }) {
@@ -56,13 +54,24 @@ export default class Tetris {
     this.moveCurrentShape();
   }
 
+  sleep(time) {
+    return new Promise(resolve => {
+      let id = this.sleepId;
+      setTimeout(() => {
+        if (id === this.sleepId) {
+          resolve();
+        }
+      }, time);
+    });
+  }
+
   async moveCurrentShape() {
-    this.canDoThat = false;
     if (!this.shape.moveDown()) {
+      this.moveFast = false;
+      this.saveBlocks();
       if (this.checkIsGameOver()) {
         this.onGameOver();
       } else {
-        this.saveBlocks();
         this.score += this.gridManager.manageGrid();
         this.elements.score.innerHTML = this.score;
         this.accelaration();
@@ -70,12 +79,15 @@ export default class Tetris {
         this.drawShape();
       }
     } else {
-      await sleep(this.speed);
+      if (this.moveFast) {
+        await this.sleep(50);
+      } else {
+        await this.sleep(this.speed);
+      }
       if (!this.pause) {
         this.moveCurrentShape();
       }
     }
-
   }
 
   drawNextShape() {
@@ -136,6 +148,13 @@ export default class Tetris {
             this.shape.moveDown();
           }
           break;
+        case KEYS.up:
+          if (!this.pause) {
+            this.sleepId = {};
+            this.moveFast = true;
+            this.moveCurrentShape();
+          }
+          break;
         case KEYS.r:
           if (!this.pause) {
             this.shape.rotate();
@@ -185,6 +204,7 @@ export default class Tetris {
   }
 
   pauseGame() {
+    this.sleepId = {};
     if (this.pause) {
       this.elements.pause.innerHTML = 'Pause';
       this.pause = false;

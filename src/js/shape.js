@@ -59,7 +59,7 @@ export default class Shape {
     let position = {
       x: this.x,
       y: this.y,
-      rotaion: this.rotation
+      rotation: this.rotation
     };
     callback();
     this.blocks.forEach(block => this.container.removeChild(block.div));
@@ -78,6 +78,7 @@ export default class Shape {
     }
     this.x = position.x;
     this.y = position.y;
+    this.rotation = position.rotation;
     this.draw(this.container);
     return false;
   }

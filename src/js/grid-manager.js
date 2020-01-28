@@ -52,7 +52,6 @@ export default class GridManager {
       this.container.removeChild(block.div);
     });
     if (result.indexes.length > 0) {
-      console.log('here', result.indexes.length);
       this.blocks = this.reorderBlocks(result.indexes);
     }
     return result.indexes.length;
