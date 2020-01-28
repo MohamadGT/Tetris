@@ -49,6 +49,7 @@ export default class Tetris {
   }
 
   drawShape() {
+    this.shape.x = Math.floor(CONSTANTS.tetrisWidth * 0.4);
     this.shape.y = -2;
     this.shape.draw(this.elements.tetris);
     this.drawNextShape();
@@ -57,12 +58,11 @@ export default class Tetris {
 
   async moveCurrentShape() {
     this.canDoThat = false;
-    if (!this.shape.tryMoveDown(this.gridManager.blocks)) {
+    if (!this.shape.moveDown()) {
       if (this.checkIsGameOver()) {
         this.onGameOver();
       } else {
         this.saveBlocks();
-        this.gridManager.manageGrid();
         this.score += this.gridManager.manageGrid();
         this.elements.score.innerHTML = this.score;
         this.accelaration();
@@ -109,11 +109,12 @@ export default class Tetris {
 
   getRandomShape() {
     return new SHAPES[Math.floor(Math.random() * Math.floor(SHAPES.length))]({
-      x: Math.floor(CONSTANTS.tetrisWidth * 0.4),
-      y: -2,
+      x: 0,
+      y: 0,
       container: this.elements.tetris,
       rotation: 0,
-      unitSize: this.gridManager.unitSize
+      unitSize: this.gridManager.unitSize,
+      gridManager: this.gridManager
     });
   }
 
@@ -122,22 +123,22 @@ export default class Tetris {
       switch (event.keyCode) {
         case KEYS.left:
           if (!this.pause) {
-            this.shape.tryMoveLeft(this.gridManager.blocks);
+            this.shape.moveLeft();
           }
           break;
         case KEYS.right:
           if (!this.pause) {
-            this.shape.tryMoveRight(this.gridManager.blocks);
+            this.shape.moveRight();
           }
           break;
         case KEYS.down:
           if (!this.pause) {
-            this.shape.tryMoveDown(this.gridManager.blocks);
+            this.shape.moveDown();
           }
           break;
         case KEYS.r:
           if (!this.pause) {
-            this.shape.tryRotate(this.gridManager.blocks);
+            this.shape.rotate();
           }
           break;
         case KEYS.space:
