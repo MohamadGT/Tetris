@@ -21,7 +21,7 @@ export default class Tetris {
   constructor({ gridManager }) {
     this.gridManager = gridManager;
     this.round = 1;
-    this.pause = false;
+    this.isPause = false;
     this.speed = 1000;
     this.score = 0;
     this.highScore = 0;
@@ -74,7 +74,7 @@ export default class Tetris {
       } else {
         this.score += this.gridManager.manageGrid();
         this.elements.score.innerHTML = this.score;
-        this.accelaration();
+        this.round++;
         this.shape = this.nextShape;
         this.drawShape();
       }
@@ -82,9 +82,9 @@ export default class Tetris {
       if (this.moveFast) {
         await this.sleep(50);
       } else {
-        await this.sleep(this.speed);
+        await this.sleep(this.getSleepDuration());
       }
-      if (!this.pause) {
+      if (!this.isPause) {
         this.moveCurrentShape();
       }
     }
@@ -112,15 +112,12 @@ export default class Tetris {
     this.gridManager.blocks = [...this.gridManager.blocks, ...this.shape.blocks];
   }
 
-  accelaration() {
-    this.round++;
-    if (this.round % 10 === 0) {
-      this.speed *= 0.9;
-    }
+  getSleepDuration() {
+    return 1000 * Math.pow(0.9, Math.floor(this.round / 10));
   }
 
   getRandomShape() {
-    return new SHAPES[Math.floor(Math.random() * Math.floor(SHAPES.length))]({
+    return new SHAPES[Math.floor(Math.random() * SHAPES.length)]({
       x: 0,
       y: 0,
       container: this.elements.tetris,
@@ -132,45 +129,46 @@ export default class Tetris {
 
   setupListeners() {
     this.onKeyDown = event => {
-      switch (event.keyCode) {
-        case KEYS.left:
-          if (!this.pause) {
-            this.shape.moveLeft();
-          }
-          break;
-        case KEYS.right:
-          if (!this.pause) {
-            this.shape.moveRight();
-          }
-          break;
-        case KEYS.down:
-          if (!this.pause) {
-            this.shape.moveDown();
-          }
-          break;
-        case KEYS.up:
-          if (!this.pause) {
-            this.sleepId = {};
-            this.moveFast = true;
-            this.moveCurrentShape();
-          }
-          break;
-        case KEYS.r:
-          if (!this.pause) {
-            this.shape.rotate();
-          }
-          break;
-        case KEYS.space:
-          this.pauseGame();
-          break;
-        default:
-          break;
+      if (event.keyCode === KEYS.space) {
+        this.togglePause();
+      } else if (!this.isPause) {
+        switch (event.keyCode) {
+          case KEYS.left:
+            if (!this.isPause) {
+              this.shape.moveLeft();
+            }
+            break;
+          case KEYS.right:
+            if (!this.isPause) {
+              this.shape.moveRight();
+            }
+            break;
+          case KEYS.down:
+            if (!this.isPause) {
+              this.shape.moveDown();
+            }
+            break;
+          case KEYS.up:
+            if (!this.isPause) {
+              this.sleepId = {};
+              this.moveFast = true;
+              this.moveCurrentShape();
+            }
+            break;
+          case KEYS.r:
+            if (!this.isPause) {
+              this.shape.rotate();
+            }
+            break;
+          default:
+            break;
+        }
       }
     };
     document.addEventListener('keydown', this.onKeyDown);
 
     this.onPauseClick = () => {
-      this.pauseGame();
+      this.togglePause();
     };
     this.elements.pause.addEventListener('click', this.onPauseClick);
   }
@@ -196,22 +194,22 @@ export default class Tetris {
     }
     this.gridManager.blocks = [];
     this.round = 1;
-    this.pause = false;
+    this.isPause = false;
     this.speed = 1000;
     this.score = 0;
     this.elements.score.innerHTML = this.score;
     this.elements.gameOver.style.display = 'none';
   }
 
-  pauseGame() {
+  togglePause() {
     this.sleepId = {};
-    if (this.pause) {
+    if (this.isPause) {
       this.elements.pause.innerHTML = 'Pause';
-      this.pause = false;
+      this.isPause = false;
       this.moveCurrentShape();
     } else {
       this.elements.pause.innerHTML = 'Continue';
-      this.pause = true;
+      this.isPause = true;
     }
   }
 }

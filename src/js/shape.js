@@ -23,8 +23,18 @@ export default class Shape {
     }));
   }
 
+  moveBlocks() {
+    let options = this.constructor.blockOptions[this.rotation];
+    return options.map(point => new Block({
+      x: point.x + this.x,
+      y: point.y + this.y,
+      unitSize: this.unitSize,
+      color: this.constructor.color
+    }));
+  }
+
   draw(container) {
-    this.blocks.forEach(block => block.draw(container));
+    this.blocks.forEach(block => container.append(block.getHtmlElement()));
   }
 
   clone() {
@@ -55,30 +65,24 @@ export default class Shape {
     );
   }
 
+  checkCollision(blocks) {
+    return blocks.every(block => block.x >= 0 && block.x <= (CONSTANTS.tetrisWidth - 1) && block.y <= ((CONSTANTS.tetrisWidth * 2) - 1))
+    && this.gridManager.blocks.every(block => !blocks.some(b => b.x === block.x && b.y === block.y));
+  }
+
   simulateMove(callback) {
-    let position = {
-      x: this.x,
-      y: this.y,
-      rotation: this.rotation
-    };
+    let { x, y, rotation } = this;
     callback();
     this.blocks.forEach(block => this.container.removeChild(block.div));
-    let options = this.constructor.blockOptions[this.rotation];
-    let blocks = options.map(point => new Block({
-      x: point.x + this.x,
-      y: point.y + this.y,
-      unitSize: this.unitSize,
-      color: this.constructor.color
-    }));
-    if (blocks.every(block => block.x >= 0 && block.x <= (CONSTANTS.tetrisWidth - 1) && block.y <= ((CONSTANTS.tetrisWidth * 2) - 1))
-        && this.gridManager.blocks.every(block => !blocks.some(b => b.x === block.x && b.y === block.y))) {
+    let blocks = this.moveBlocks();
+    if (this.checkCollision(blocks)) {
       this.blocks = blocks;
       this.draw(this.container);
       return true;
     }
-    this.x = position.x;
-    this.y = position.y;
-    this.rotation = position.rotation;
+    this.x = x;
+    this.y = y;
+    this.rotation = rotation;
     this.draw(this.container);
     return false;
   }

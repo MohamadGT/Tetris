@@ -6,7 +6,7 @@ export default class Block {
     this.color = color;
   }
 
-  draw(container) {
+  getHtmlElement() {
     this.div = document.createElement('div');
     this.div.classList.add('block');
     this.div.classList.add(`block_color_${this.color}`);
@@ -14,6 +14,6 @@ export default class Block {
     this.div.style.left = `${this.x * this.unitSize}px`;
     this.div.style.width = `${this.unitSize}px`;
     this.div.style.height = `${this.unitSize}px`;
-    container.append(this.div);
+    return this.div;
   }
 }

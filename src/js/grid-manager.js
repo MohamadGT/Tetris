@@ -41,7 +41,7 @@ export default class GridManager {
       unitSize: block.unitSize,
       color: block.color
     }));
-    newBlocks.forEach(block => block.draw(this.container));
+    newBlocks.forEach(block => this.container.append(block.getHtmlElement()));
     return newBlocks;
   }
 
