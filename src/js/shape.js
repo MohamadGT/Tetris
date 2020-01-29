@@ -9,18 +9,7 @@ export default class Shape {
     this.rotation = rotation;
     this.unitSize = unitSize;
     this.gridManager = gridManager;
-    this.blocks = [];
-    this.init();
-  }
-
-  init() {
-    let options = this.constructor.blockOptions[this.rotation];
-    this.blocks = options.map(point => new Block({
-      x: point.x + this.x,
-      y: point.y + this.y,
-      unitSize: this.unitSize,
-      color: this.constructor.color
-    }));
+    this.blocks = this.moveBlocks();
   }
 
   moveBlocks() {

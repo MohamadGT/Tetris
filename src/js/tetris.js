@@ -80,7 +80,7 @@ export default class Tetris {
       }
     } else {
       if (this.moveFast) {
-        await this.sleep(50);
+        await this.sleep(5);
       } else {
         await this.sleep(this.getSleepDuration());
       }
