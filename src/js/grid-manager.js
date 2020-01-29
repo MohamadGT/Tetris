@@ -14,7 +14,7 @@ export default class GridManager {
     this.container.style.height = `${CONSTANTS.unitSize * CONSTANTS.tetrisHeight}px`;
   }
 
-  checkFilledRow() {
+  getLinesToClear() {
     let rows = [];
     let toRemove = [];
     let toRemoveIndexes = [];
@@ -46,7 +46,7 @@ export default class GridManager {
   }
 
   manageGrid() {
-    let result = this.checkFilledRow();
+    let result = this.getLinesToClear();
     result.remove.forEach(block => {
       this.blocks.splice(this.blocks.indexOf(block), 1);
       this.container.removeChild(block.div);

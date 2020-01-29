@@ -21,8 +21,7 @@ export default class Tetris {
   constructor({ gridManager }) {
     this.gridManager = gridManager;
     this.round = 1;
-    this.isPause = false;
-    this.speed = 1000;
+    this.isPaused = false;
     this.score = 0;
     this.highScore = 0;
   }
@@ -68,12 +67,10 @@ export default class Tetris {
   async moveCurrentShape() {
     if (!this.shape.moveDown()) {
       this.moveFast = false;
-      this.saveBlocks();
       if (this.checkIsGameOver()) {
         this.onGameOver();
       } else {
-        this.score += this.gridManager.manageGrid();
-        this.elements.score.innerHTML = this.score;
+        this.saveBlocks();
         this.round++;
         this.shape = this.nextShape;
         this.drawShape();
@@ -84,7 +81,7 @@ export default class Tetris {
       } else {
         await this.sleep(this.getSleepDuration());
       }
-      if (!this.isPause) {
+      if (!this.isPaused) {
         this.moveCurrentShape();
       }
     }
@@ -110,6 +107,8 @@ export default class Tetris {
 
   saveBlocks() {
     this.gridManager.blocks = [...this.gridManager.blocks, ...this.shape.blocks];
+    this.score += this.gridManager.manageGrid();
+    this.elements.score.innerHTML = this.score;
   }
 
   getSleepDuration() {
@@ -131,34 +130,24 @@ export default class Tetris {
     this.onKeyDown = event => {
       if (event.keyCode === KEYS.space) {
         this.togglePause();
-      } else if (!this.isPause) {
+      } else if (!this.isPaused) {
         switch (event.keyCode) {
           case KEYS.left:
-            if (!this.isPause) {
-              this.shape.moveLeft();
-            }
+            this.shape.moveLeft();
             break;
           case KEYS.right:
-            if (!this.isPause) {
-              this.shape.moveRight();
-            }
+            this.shape.moveRight();
             break;
           case KEYS.down:
-            if (!this.isPause) {
-              this.shape.moveDown();
-            }
+            this.shape.moveDown();
             break;
           case KEYS.up:
-            if (!this.isPause) {
-              this.sleepId = {};
-              this.moveFast = true;
-              this.moveCurrentShape();
-            }
+            this.sleepId = {};
+            this.moveFast = true;
+            this.moveCurrentShape();
             break;
           case KEYS.r:
-            if (!this.isPause) {
-              this.shape.rotate();
-            }
+            this.shape.rotate();
             break;
           default:
             break;
@@ -194,8 +183,7 @@ export default class Tetris {
     }
     this.gridManager.blocks = [];
     this.round = 1;
-    this.isPause = false;
-    this.speed = 1000;
+    this.isPaused = false;
     this.score = 0;
     this.elements.score.innerHTML = this.score;
     this.elements.gameOver.style.display = 'none';
@@ -203,13 +191,13 @@ export default class Tetris {
 
   togglePause() {
     this.sleepId = {};
-    if (this.isPause) {
+    if (this.isPaused) {
       this.elements.pause.innerHTML = 'Pause';
-      this.isPause = false;
+      this.isPaused = false;
       this.moveCurrentShape();
     } else {
       this.elements.pause.innerHTML = 'Continue';
-      this.isPause = true;
+      this.isPaused = true;
     }
   }
 }
