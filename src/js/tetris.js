@@ -35,7 +35,8 @@ export default class Tetris {
       nextShape: document.querySelector('.next-shape__object'),
       pause: document.querySelector('.pause'),
       tetris: document.querySelector('.tetris'),
-      gameOver: document.querySelector('.game-over')
+      gameOver: document.querySelector('.game-over'),
+      tetrisScore: document.querySelector('.tetris-score')
     };
   }
 
@@ -125,7 +126,13 @@ export default class Tetris {
 
   saveBlocks() {
     this.gridManager.blocks = [...this.gridManager.blocks, ...this.shape.blocks];
-    this.score += this.gridManager.manageGrid();
+    let removedRows = this.gridManager.manageGrid();
+    if (removedRows >= 4) {
+      removedRows *= 2;
+      this.elements.tetrisScore.style.display = 'block';
+      setTimeout(() => this.elements.tetrisScore.style.display = 'none', 1000);
+    }
+    this.score += removedRows;
     this.elements.score.innerHTML = this.score;
   }
 

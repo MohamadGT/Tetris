@@ -25,10 +25,6 @@ body {
     justify-content: center;
 }
 
-.next-shape {
-    position: relative;
-}
-
 .score {
     text-align: center;
 }
@@ -110,7 +106,7 @@ body {
     height: 30px;
     line-height: 30px;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 20px; 
 }
 
 .next-shape__object {
@@ -190,3 +186,21 @@ body {
     border-bottom: solid 4px #3399CC;
     border-left: solid 4px #3399CC;
 }
+
+.tetris-score {
+    position: absolute;
+    font-size: 40px;
+    color: #CC0000;
+    text-transform: uppercase;
+    display: none;
+    animation-name: tetris;
+    animation-duration: 1s;
+}
+
+@keyframes tetris {
+    from {
+        transform: scale(1);}
+    to {
+        transform: scale(5);}
+  }
+
