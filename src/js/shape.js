@@ -56,13 +56,15 @@ export default class Shape {
 
   checkCollision(blocks) {
     return blocks.every(block => block.x >= 0 && block.x <= (CONSTANTS.tetrisWidth - 1) && block.y <= ((CONSTANTS.tetrisWidth * 2) - 1))
-    && this.gridManager.blocks.every(block => !blocks.some(b => b.x === block.x && b.y === block.y));
+      && this.gridManager.blocks.every(block => !blocks.some(b => b.x === block.x && b.y === block.y));
   }
 
   simulateMove(callback) {
     let { x, y, rotation } = this;
     callback();
-    this.blocks.forEach(block => this.container.removeChild(block.div));
+    this.blocks.forEach(block => {
+      this.container.removeChild(block.div);
+    });
     let blocks = this.moveBlocks();
     if (this.checkCollision(blocks)) {
       this.blocks = blocks;
@@ -74,5 +76,9 @@ export default class Shape {
     this.rotation = rotation;
     this.draw(this.container);
     return false;
+  }
+
+  serialize() {
+    return { name: this.constructor.name, x: this.x, y: this.y, rotation: this.rotation };
   }
 }

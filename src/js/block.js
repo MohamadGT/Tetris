@@ -6,6 +6,10 @@ export default class Block {
     this.color = color;
   }
 
+  serialize() {
+    return { x: this.x, y: this.y, unitSize: this.unitSize, color: this.color };
+  }
+
   getHtmlElement() {
     this.div = document.createElement('div');
     this.div.classList.add('block');

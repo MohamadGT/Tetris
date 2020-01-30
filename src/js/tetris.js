@@ -16,6 +16,7 @@ const KEYS = {
   down: 40,
   r: 82
 };
+const FASTSLEEP = 5;
 
 export default class Tetris {
   constructor({ gridManager }) {
@@ -24,6 +25,7 @@ export default class Tetris {
     this.isPaused = false;
     this.score = 0;
     this.highScore = 0;
+    this.elements.pause.style.display = 'none';
   }
 
   get elements() {
@@ -38,17 +40,25 @@ export default class Tetris {
   }
 
   start() {
+    this.sleepId = {};
     this.isRunning = true;
     this.setupListeners();
     this.gameOver = false;
-    this.shape = this.getRandomShape();
+    if (!this.isLoaded) {
+      this.shape = this.getRandomShape();
+    } else {
+      this.elements.pause.innerHTML = 'Continue';
+    }
+    this.elements.pause.style.display = 'block';
     this.drawShape();
   }
 
   drawShape() {
-    this.shape.x = Math.floor(CONSTANTS.tetrisWidth * 0.4);
-    this.shape.y = -2;
-    this.shape.draw(this.elements.tetris);
+    if (!this.isLoaded) {
+      this.shape.x = Math.floor(CONSTANTS.tetrisWidth * 0.4);
+      this.shape.y = -2;
+      this.shape.draw(this.elements.tetris);
+    }
     this.drawNextShape();
     this.moveCurrentShape();
   }
@@ -65,22 +75,24 @@ export default class Tetris {
   }
 
   async moveCurrentShape() {
+    // if (this.isRestarted) {
+    //   this.isRestarted = false;
+    //   return;
+    // }
     if (!this.shape.moveDown()) {
       this.moveFast = false;
+      this.saveBlocks();
       if (this.checkIsGameOver()) {
         this.onGameOver();
       } else {
-        this.saveBlocks();
         this.round++;
         this.shape = this.nextShape;
         this.drawShape();
+        this.saveGame();
       }
     } else {
-      if (this.moveFast) {
-        await this.sleep(5);
-      } else {
-        await this.sleep(this.getSleepDuration());
-      }
+      await this.sleep(this.moveFast ? FASTSLEEP : this.getSleepDuration());
+      this.saveGame();
       if (!this.isPaused) {
         this.moveCurrentShape();
       }
@@ -88,12 +100,15 @@ export default class Tetris {
   }
 
   drawNextShape() {
-    this.clearNextShape();
-    this.nextShape = this.getRandomShape();
-    let clone = this.nextShape.clone();
-    clone.x = 0;
-    clone.y = 0;
-    clone.draw(this.elements.nextShape);
+    if (!this.isLoaded) {
+      this.clearNextShape();
+      this.nextShape = this.getRandomShape();
+      let clone = this.nextShape.clone();
+      clone.x = 0;
+      clone.y = 0;
+      clone.draw(this.elements.nextShape);
+    }
+    this.isLoaded = false;
   }
 
   onGameOver() {
@@ -103,6 +118,9 @@ export default class Tetris {
     this.gameOver = true;
     this.removeListeners();
     this.isRunning = false;
+    this.isLoaded = false;
+    localStorage.removeItem('tetris');
+    this.elements.pause.style.display = 'none';
   }
 
   saveBlocks() {
@@ -177,16 +195,18 @@ export default class Tetris {
 
   clearAll() {
     this.clearNextShape();
-    let main = this.elements.tetris;
-    while (main.firstChild) {
-      main.removeChild(main.firstChild);
-    }
+    // let main = this.elements.tetris;
+    // while (main.firstChild) {
+    //   main.removeChild(main.firstChild);
+    // }
+    this.elements.tetris.innerHTML = '';
     this.gridManager.blocks = [];
     this.round = 1;
     this.isPaused = false;
     this.score = 0;
     this.elements.score.innerHTML = this.score;
     this.elements.gameOver.style.display = 'none';
+    this.elements.pause.innerHTML = 'Pause';
   }
 
   togglePause() {
@@ -199,5 +219,70 @@ export default class Tetris {
       this.elements.pause.innerHTML = 'Continue';
       this.isPaused = true;
     }
+  }
+
+  serialize() {
+    let blocks = this.gridManager.blocks.map(block => block.serialize());
+    return JSON.stringify({
+      shape: this.shape.serialize(),
+      nextShape: this.nextShape.serialize(),
+      round: this.round,
+      isPaused: this.isPaused,
+      score: this.score,
+      gridBlocks: blocks
+    });
+  }
+
+  deserialize(data) {
+    let obj = JSON.parse(data);
+    if (obj) {
+      this.isLoaded = true;
+      this.shape = this.loadShape(obj.shape);
+      this.nextShape = this.loadShape(obj.nextShape);
+      this.round = obj.round;
+      this.isPaused = true;
+      this.score = obj.score;
+      this.elements.score.innerHTML = this.score;
+      this.gridManager.loadGrid(obj.gridBlocks);
+      this.shape.draw(this.elements.tetris);
+      let clone = this.nextShape.clone();
+      clone.x = 0;
+      clone.y = 0;
+      clone.draw(this.elements.nextShape);
+      this.start();
+    }
+  }
+
+  saveGame() {
+    localStorage.setItem('tetris', this.serialize());
+    localStorage.setItem('highScore', this.highScore);
+  }
+
+  loadGame() {
+    this.deserialize(localStorage.getItem('tetris'));
+    this.highScore = localStorage.getItem('highScore') || 0;
+    this.elements.highScore.innerHTML = this.highScore;
+  }
+
+  loadShape(obj) {
+    let name = obj.name;
+    let Type = SHAPES[SHAPES.findIndex(shape => shape.name === name)];
+    return new Type({
+      x: obj.x,
+      y: obj.y,
+      container: this.elements.tetris,
+      rotation: obj.rotation,
+      unitSize: this.gridManager.unitSize,
+      gridManager: this.gridManager
+    });
+  }
+
+  restartGame() {
+    this.removeListeners();
+    this.isRunning = false;
+    this.isLoaded = false;
+    localStorage.removeItem('tetris');
+    this.clearAll();
+    this.start();
   }
 }

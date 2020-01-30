@@ -6,6 +6,7 @@ import Tetris from './js/tetris';
   let container = document.querySelector('.tetris');
   let gridManager = new GridManager({ container });
   let tetris = new Tetris({ gridManager });
+  tetris.loadGame();
 
   document.querySelector('.new-game').addEventListener('click', () => {
     if (!tetris.isRunning) {
@@ -13,6 +14,8 @@ import Tetris from './js/tetris';
         tetris.clearAll();
       }
       tetris.start();
+    } else {
+      tetris.restartGame();
     }
   });
 })();
