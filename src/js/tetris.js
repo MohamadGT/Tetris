@@ -241,10 +241,7 @@ export default class Tetris {
       this.elements.score.innerHTML = this.score;
       this.gridManager.loadGrid(obj.gridBlocks);
       this.shape.draw(this.elements.tetris);
-      let clone = this.nextShape.clone();
-      clone.x = 0;
-      clone.y = 0;
-      clone.draw(this.elements.nextShape);
+      this.nextShape.draw(this.elements.nextShape);
       this.start();
     }
   }
