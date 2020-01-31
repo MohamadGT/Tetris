@@ -22,8 +22,8 @@ export default class Shape {
     }));
   }
 
-  draw(container) {
-    this.blocks.forEach(block => container.append(block.getHtmlElement()));
+  draw(container, isGhost = false) {
+    this.blocks.forEach(block => container.append(block.getHtmlElement(isGhost)));
   }
 
   clone() {
@@ -54,9 +54,15 @@ export default class Shape {
     );
   }
 
-  checkCollision(blocks) {
-    return blocks.every(block => block.x >= 0 && block.x <= (CONSTANTS.tetrisWidth - 1) && block.y <= ((CONSTANTS.tetrisWidth * 2) - 1))
-      && this.gridManager.blocks.every(block => !blocks.some(b => b.x === block.x && b.y === block.y));
+  checkNoCollision(blocks) {
+    let isNoCollisionWithBorders = blocks.every(block => block.x >= 0
+      && block.x <= (CONSTANTS.tetrisWidth - 1)
+      && block.y <= ((CONSTANTS.tetrisWidth * 2) - 1)
+    );
+    let isNoCollisionWithBlocks = this.gridManager.blocks.every(block =>
+      !blocks.some(b => b.x === block.x && b.y === block.y)
+    );
+    return isNoCollisionWithBorders && isNoCollisionWithBlocks;
   }
 
   simulateMove(callback) {
@@ -66,7 +72,7 @@ export default class Shape {
       this.container.removeChild(block.div);
     });
     let blocks = this.moveBlocks();
-    if (this.checkCollision(blocks)) {
+    if (this.checkNoCollision(blocks)) {
       this.blocks = blocks;
       this.draw(this.container);
       return true;
@@ -80,5 +86,16 @@ export default class Shape {
 
   serialize() {
     return { name: this.constructor.name, x: this.x, y: this.y, rotation: this.rotation };
+  }
+
+  shapeGhost() {
+    let ghost = this.clone();
+    while (ghost.checkNoCollision(ghost.blocks)) {
+      ghost.y++;
+      ghost.blocks = ghost.moveBlocks();
+    }
+    ghost.y--;
+    ghost.blocks = ghost.moveBlocks();
+    return ghost;
   }
 }

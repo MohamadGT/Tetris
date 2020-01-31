@@ -194,13 +194,31 @@ body {
     text-transform: uppercase;
     display: none;
     animation-name: tetris;
-    animation-duration: 1s;
+    animation-duration: .5s;
 }
 
 @keyframes tetris {
     from {
-        transform: scale(1);}
+        transform: scale(1);
+    }
     to {
-        transform: scale(5);}
-  }
+        transform: scale(5);
+    }
+}
+
+.ghost {
+    opacity: .6;
+}
+
+.ghost::after {
+    position: absolute;
+    display: block;
+    content: ' ';
+    box-sizing: border-box;
+    background: rgba(65, 65, 65, 0.3);
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+}
 

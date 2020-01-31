@@ -52,6 +52,7 @@ export default class Tetris {
     }
     this.elements.pause.style.display = 'block';
     this.drawShape();
+    this.drawGhost();
   }
 
   drawShape() {
@@ -59,6 +60,7 @@ export default class Tetris {
       this.shape.x = Math.floor(CONSTANTS.tetrisWidth * 0.4);
       this.shape.y = -2;
       this.shape.draw(this.elements.tetris);
+      this.drawGhost();
     }
     this.drawNextShape();
     this.moveCurrentShape();
@@ -123,7 +125,7 @@ export default class Tetris {
     if (removedRows >= 4) {
       removedRows *= 2;
       this.elements.tetrisScore.style.display = 'block';
-      setTimeout(() => this.elements.tetrisScore.style.display = 'none', 1000);
+      setTimeout(() => this.elements.tetrisScore.style.display = 'none', 500);
     }
     this.score += removedRows;
     this.elements.score.innerHTML = this.score;
@@ -170,6 +172,7 @@ export default class Tetris {
           default:
             break;
         }
+        this.drawGhost();
       }
     };
     document.addEventListener('keydown', this.onKeyDown);
@@ -277,5 +280,17 @@ export default class Tetris {
     localStorage.removeItem('tetris');
     this.clearAll();
     this.start();
+  }
+
+  drawGhost() {
+    this.removeAllGhosts();
+    this.shape.shapeGhost().draw(this.elements.tetris, true);
+  }
+
+  removeAllGhosts() {
+    let ghosts = this.elements.tetris.querySelectorAll('.ghost');
+    ghosts.forEach(ghost => {
+      this.elements.tetris.removeChild(ghost);
+    });
   }
 }
