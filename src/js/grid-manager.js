@@ -58,12 +58,7 @@ export default class GridManager {
   }
 
   loadGrid(blocks) {
-    this.blocks = blocks.map(block => new Block({
-      x: block.x,
-      y: block.y,
-      unitSize: block.unitSize,
-      color: block.color
-    }));
+    this.blocks = blocks.map(block => new Block({ ...block }));
     this.blocks.forEach(block => this.container.append(block.getHtmlElement()));
   }
 }

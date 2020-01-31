@@ -76,10 +76,6 @@ export default class Tetris {
   }
 
   async moveCurrentShape() {
-    // if (this.isRestarted) {
-    //   this.isRestarted = false;
-    //   return;
-    // }
     if (!this.shape.moveDown()) {
       this.moveFast = false;
       this.saveBlocks();
@@ -104,10 +100,7 @@ export default class Tetris {
     if (!this.isLoaded) {
       this.clearNextShape();
       this.nextShape = this.getRandomShape();
-      let clone = this.nextShape.clone();
-      clone.x = 0;
-      clone.y = 0;
-      clone.draw(this.elements.nextShape);
+      this.nextShape.draw(this.elements.nextShape);
     }
     this.isLoaded = false;
   }
@@ -202,10 +195,6 @@ export default class Tetris {
 
   clearAll() {
     this.clearNextShape();
-    // let main = this.elements.tetris;
-    // while (main.firstChild) {
-    //   main.removeChild(main.firstChild);
-    // }
     this.elements.tetris.innerHTML = '';
     this.gridManager.blocks = [];
     this.round = 1;
@@ -273,7 +262,7 @@ export default class Tetris {
 
   loadShape(obj) {
     let name = obj.name;
-    let Type = SHAPES[SHAPES.findIndex(shape => shape.name === name)];
+    let Type = SHAPES.find(shape => shape.name === name);
     return new Type({
       x: obj.x,
       y: obj.y,
