@@ -10,9 +10,12 @@ export default class Block {
     return { x: this.x, y: this.y, unitSize: this.unitSize, color: this.color };
   }
 
-  getHtmlElement() {
+  getHtmlElement({ isGhost = false } = {}) {
     this.div = document.createElement('div');
     this.div.classList.add('block');
+    if (isGhost) {
+      this.div.classList.add('ghost');
+    }
     this.div.classList.add(`block_color_${this.color}`);
     this.div.style.top = `${this.y * this.unitSize}px`;
     this.div.style.left = `${this.x * this.unitSize}px`;
