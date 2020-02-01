@@ -22,7 +22,7 @@ export default class Shape {
     }));
   }
 
-  draw(container, isGhost = false) {
+  draw(container, { isGhost = false } = {}) {
     this.blocks.forEach(block => container.append(block.getHtmlElement(isGhost)));
   }
 
@@ -57,7 +57,7 @@ export default class Shape {
   checkNoCollision(blocks) {
     let isNoCollisionWithBorders = blocks.every(block => block.x >= 0
       && block.x <= (CONSTANTS.tetrisWidth - 1)
-      && block.y <= ((CONSTANTS.tetrisWidth * 2) - 1)
+      && block.y <= (CONSTANTS.tetrisHeight - 1)
     );
     let isNoCollisionWithBlocks = this.gridManager.blocks.every(block =>
       !blocks.some(b => b.x === block.x && b.y === block.y)

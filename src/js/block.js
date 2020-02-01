@@ -10,7 +10,7 @@ export default class Block {
     return { x: this.x, y: this.y, unitSize: this.unitSize, color: this.color };
   }
 
-  getHtmlElement(isGhost) {
+  getHtmlElement({ isGhost = false } = {}) {
     this.div = document.createElement('div');
     this.div.classList.add('block');
     if (isGhost) {

@@ -284,7 +284,7 @@ export default class Tetris {
 
   drawGhost() {
     this.removeAllGhosts();
-    this.shape.shapeGhost().draw(this.elements.tetris, true);
+    this.shape.shapeGhost().draw(this.elements.tetris, { isGhost: true });
   }
 
   removeAllGhosts() {
